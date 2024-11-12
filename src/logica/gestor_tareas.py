@@ -27,7 +27,6 @@ class GestorTareas:
         if 0 <= indice < len(self.tareas):
             del self.tareas[indice]
 
-
 # Clase para la Interfaz Gráfica de Usuario (GUI) usando PyQt6
 class GestorTareasGUI(QtWidgets.QWidget):
     def __init__(self):
@@ -74,7 +73,7 @@ class GestorTareasGUI(QtWidgets.QWidget):
         descripcion = self.descripcion_input.toPlainText()
         try:
             self.gestor.agregar_tarea(titulo, descripcion)
-            self.actualizar_lista_tareas()
+            self.lista_tareas.addItem(self.formato_tarea(self.gestor.tareas[-1]))
             self.titulo_input.clear()
             self.descripcion_input.clear()
         except ValueError as e:
@@ -84,27 +83,23 @@ class GestorTareasGUI(QtWidgets.QWidget):
         item_seleccionado = self.lista_tareas.currentRow()
         if item_seleccionado != -1:
             self.gestor.marcar_completada(item_seleccionado)
-            self.actualizar_lista_tareas()
+            self.lista_tareas.item(item_seleccionado).setText(self.formato_tarea(self.gestor.tareas[item_seleccionado]))
 
     def eliminar_tarea(self):
         item_seleccionado = self.lista_tareas.currentRow()
         if item_seleccionado != -1:
             self.gestor.eliminar_tarea(item_seleccionado)
-            self.actualizar_lista_tareas()
+            self.lista_tareas.takeItem(item_seleccionado)
 
-    def actualizar_lista_tareas(self):
-        self.lista_tareas.clear()
-        for tarea in self.gestor.tareas:
-            estado = "[Completada]" if tarea.completada else "[Pendiente]"
-            self.lista_tareas.addItem(f"{estado} {tarea.titulo}: {tarea.descripcion}")
-
+    def formato_tarea(self, tarea):
+        estado = "[Completada]" if tarea.completada else "[Pendiente]"
+        return f"{estado} {tarea.titulo}: {tarea.descripcion}"
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
     gestor_tareas_gui = GestorTareasGUI()
     gestor_tareas_gui.show()
     sys.exit(app.exec())
-
 
 # Ejecutar la aplicación
 if __name__ == "__main__":
